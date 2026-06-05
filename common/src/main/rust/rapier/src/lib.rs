@@ -534,7 +534,9 @@ pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_get
 
         let rb: &RigidBody = &scene.rigid_body_set[scene.rigid_bodies[&(id as LevelColliderID)]];
 
-        let arr: [jdouble; 7] = [
+        let scale = scene.level_colliders[&(id as LevelColliderID)].scale;
+
+        let arr: [jdouble; 10] = [
             rb.translation().x as jdouble,
             rb.translation().y as jdouble,
             rb.translation().z as jdouble,
@@ -542,6 +544,9 @@ pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_get
             rb.rotation().y as jdouble,
             rb.rotation().z as jdouble,
             rb.rotation().w as jdouble,
+            scale.x as jdouble,
+            scale.y as jdouble,
+            scale.z as jdouble,
         ];
 
         env.set_double_array_region(&store, 0, &arr).unwrap();
@@ -619,7 +624,7 @@ pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_cre
     id: jint,
     pose: JDoubleArray<'local>,
 ) {
-    let mut pose_arr: [jdouble; 7] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    let mut pose_arr: [jdouble; 10] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     env.get_double_array_region(pose, 0, &mut pose_arr).unwrap();
 
     let quat = Quat::from_xyzw(
