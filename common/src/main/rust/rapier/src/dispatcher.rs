@@ -256,6 +256,7 @@ impl SableDispatcher {
             .map(|id| &scene.level_colliders[&(id as LevelColliderID)]);
         let center_of_mass_1 =
             collider_info.map_or(Vector3::zeros(), |b| b.center_of_mass.unwrap());
+        let scale_1 = collider_info.map_or(Vector3::<f64>::new(1.0, 1.0, 1.0), |b| b.scale);
 
         let mut local_aabb = g2.compute_aabb(pos12);
 
@@ -320,13 +321,18 @@ impl SableDispatcher {
                             ((min_z + max_z) / 2.0) as f64,
                         ) + Vector3::new(x as f64, y as f64, z as f64)
                             - center_of_mass_1;
-                        let center =
-                            Vector::new(center.x as Real, center.y as Real, center.z as Real);
+                        // Apply scale to collision box center
+                        let center = Vector::new(
+                            (center.x * scale_1.x) as Real,
+                            (center.y * scale_1.y) as Real,
+                            (center.z * scale_1.z) as Real,
+                        );
 
+                        // Apply scale to collision box half-extents
                         let half_extents = Vector::new(
-                            (max_x - min_x) / 2.0,
-                            (max_y - min_y) / 2.0,
-                            (max_z - min_z) / 2.0,
+                            (((max_x - min_x) / 2.0) * scale_1.x) as Real,
+                            (((max_y - min_y) / 2.0) * scale_1.y) as Real,
+                            (((max_z - min_z) / 2.0) * scale_1.z) as Real,
                         );
 
                         // Translate to match the center of the current block
@@ -412,7 +418,9 @@ impl SableDispatcher {
         let collider_info_2 = &scene.level_colliders[&(g2.id.unwrap() as LevelColliderID)];
         let center_of_mass_1 =
             collider_info_1.map_or(Vector3::zeros(), |b| b.center_of_mass.unwrap());
+        let scale_1 = collider_info_1.map_or(Vector3::<f64>::new(1.0, 1.0, 1.0), |b| b.scale);
         let center_of_mass_2 = collider_info_2.center_of_mass.unwrap();
+        let scale_2 = collider_info_2.scale;
 
         let chunk_access_1: &dyn ChunkAccess = if let Some(info) = collider_info_1
             && info.has_own_chunks()
@@ -487,12 +495,17 @@ impl SableDispatcher {
                     ((min_z + max_z) / 2.0) as f64,
                 ) + Vector3::new(static_x as f64, static_y as f64, static_z as f64)
                     - center_of_mass_1;
-                let center = Vector3::new(center.x as Real, center.y as Real, center.z as Real);
+                // Apply scale_1 to body 1 collision box
+                let center = Vector3::new(
+                    (center.x * scale_1.x) as Real,
+                    (center.y * scale_1.y) as Real,
+                    (center.z * scale_1.z) as Real,
+                );
 
                 let half_extents = Vector3::new(
-                    (max_x - min_x) / 2.0,
-                    (max_y - min_y) / 2.0,
-                    (max_z - min_z) / 2.0,
+                    ((max_x - min_x) / 2.0 * scale_1.x) as Real,
+                    ((max_y - min_y) / 2.0 * scale_1.y) as Real,
+                    ((max_z - min_z) / 2.0 * scale_1.z) as Real,
                 );
 
                 // Translate to match the center of the current block
@@ -559,16 +572,17 @@ impl SableDispatcher {
                             ((other_min_z + other_max_z) / 2.0) as f64,
                         ) + Vector3::new(other_bx as f64, other_by as f64, other_bz as f64)
                             - center_of_mass_2;
+                    // Apply scale_2 to body 2 collision box
                     let other_center = Vector3::new(
-                        other_center.x as Real,
-                        other_center.y as Real,
-                        other_center.z as Real,
+                        (other_center.x * scale_2.x) as Real,
+                        (other_center.y * scale_2.y) as Real,
+                        (other_center.z * scale_2.z) as Real,
                     );
 
                     let other_half_extents = Vector3::new(
-                        (other_max_x - other_min_x) / 2.0,
-                        (other_max_y - other_min_y) / 2.0,
-                        (other_max_z - other_min_z) / 2.0,
+                        ((other_max_x - other_min_x) / 2.0 * scale_2.x) as Real,
+                        ((other_max_y - other_min_y) / 2.0 * scale_2.y) as Real,
+                        ((other_max_z - other_min_z) / 2.0 * scale_2.z) as Real,
                     );
 
                     // combine block isometries
