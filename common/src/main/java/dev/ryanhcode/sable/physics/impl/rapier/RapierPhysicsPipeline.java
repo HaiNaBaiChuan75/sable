@@ -65,6 +65,8 @@ import org.joml.Vector3dc;
 
 /**
  * Implementation of {@link PhysicsPipeline} for the rust Rapier 3D physics engine.
+ * <p>
+ * Modified: Added SubLevel scale support (pose array 7→10 doubles: pos+rot+scale).
  */
 public class RapierPhysicsPipeline implements PhysicsPipeline {
 
