@@ -1157,14 +1157,17 @@ pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_tel
     sz: jdouble,
 ) {
     let scene = get_scene_mut_ref(scene_id);
-    let rb = &mut scene.rigid_body_set[scene.rigid_bodies[&(id as LevelColliderID)]];
+    // Scope the rigid body borrow so it's dropped before we access level_colliders
+    {
+        let rb = &mut scene.rigid_body_set[scene.rigid_bodies[&(id as LevelColliderID)]];
 
-    let mut pose = *rb.position();
-    pose.translation = Vector::new(x as Real, y as Real, z as Real);
-    pose.rotation = Quat::from_xyzw(i as Real, j as Real, k as Real, r as Real);
-    rb.set_position(pose, true);
+        let mut pose = *rb.position();
+        pose.translation = Vector::new(x as Real, y as Real, z as Real);
+        pose.rotation = Quat::from_xyzw(i as Real, j as Real, k as Real, r as Real);
+        rb.set_position(pose, true);
+    }
 
-    // Update stored scale
+    // Update stored scale (separate borrow from rigid_body_set)
     if let Some(info) = scene.level_colliders.get_mut(&(id as LevelColliderID)) {
         info.scale = NaVector3::new(sx, sy, sz);
     }
