@@ -94,7 +94,7 @@ public class RapierPhysicsPipeline implements PhysicsPipeline {
         this.colliderBakery = new RapierVoxelColliderBakery(this.accelerator);
         this.recentCollisions.defaultReturnValue(-1);
         this.sceneId = Rapier3D.getID(this.level);
-        this.cache = new double[7];
+        this.cache = new double[10];
     }
 
     /**
@@ -318,7 +318,12 @@ public class RapierPhysicsPipeline implements PhysicsPipeline {
         subLevel.buildMassTracker();
 
         final int id = Rapier3D.getID(subLevel);
-        Rapier3D.createSubLevel(this.sceneId, id, new double[]{pos.x(), pos.y(), pos.z(), rot.x(), rot.y(), rot.z(), rot.w()});
+        final Vector3dc scale = pose.scale();
+        Rapier3D.createSubLevel(this.sceneId, id, new double[]{
+            pos.x(), pos.y(), pos.z(),
+            rot.x(), rot.y(), rot.z(), rot.w(),
+            scale.x(), scale.y(), scale.z()
+        });
 
         subLevel.updateMergedMassData(1.0f);
         final Vector3dc centerOfMass = subLevel.getMassTracker().getCenterOfMass();
@@ -426,6 +431,7 @@ public class RapierPhysicsPipeline implements PhysicsPipeline {
 
         dest.position().set(this.cache[0], this.cache[1], this.cache[2]);
         dest.orientation().set(this.cache[3], this.cache[4], this.cache[5], this.cache[6]);
+        dest.scale().set(this.cache[7], this.cache[8], this.cache[9]);
 
         return dest;
     }
@@ -551,7 +557,17 @@ public class RapierPhysicsPipeline implements PhysicsPipeline {
      */
     @Override
     public void teleport(final PhysicsPipelineBody body, final Vector3dc position, final Quaterniondc orientation) {
-        Rapier3D.teleportObject(this.sceneId, Rapier3D.getID(body), position.x(), position.y(), position.z(), orientation.x(), orientation.y(), orientation.z(), orientation.w());
+        final double sx, sy, sz;
+        if (body instanceof final ServerSubLevel subLevel) {
+            final var scale = subLevel.logicalPose().scale();
+            sx = scale.x(); sy = scale.y(); sz = scale.z();
+        } else {
+            sx = sy = sz = 1.0;
+        }
+        Rapier3D.teleportObject(this.sceneId, Rapier3D.getID(body),
+            position.x(), position.y(), position.z(),
+            orientation.x(), orientation.y(), orientation.z(), orientation.w(),
+            sx, sy, sz);
         if (body instanceof final ServerSubLevel subLevel) {
             subLevel.logicalPose().position().set(position);
             subLevel.logicalPose().orientation().set(orientation);

@@ -55,6 +55,7 @@ pub struct ActiveLevelColliderInfo {
     pub local_bounds_min: Option<NaVector3<i32>>,
     pub local_bounds_max: Option<NaVector3<i32>>,
     pub center_of_mass: Option<NaVector3<f64>>,
+    pub scale: NaVector3<f64>,
     pub octree: Option<SubLevelOctree>,
     pub chunk_map: Option<ChunkMap>,
     pub scene_id: jint,
@@ -110,6 +111,7 @@ impl ActiveLevelColliderInfo {
             local_bounds_min: None,
             local_bounds_max: None,
             center_of_mass: None,
+            scale: NaVector3::new(1.0, 1.0, 1.0),
             octree: None,
             scene_id,
         }
@@ -670,9 +672,11 @@ pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_cre
                     .collider_set
                     .insert_with_parent(collider, handle, &mut scene.rigid_body_set);
 
+            let mut collider_info = ActiveLevelColliderInfo::new(collider_handle, scene_id);
+            collider_info.scale = NaVector3::new(pose_arr[7], pose_arr[8], pose_arr[9]);
             scene.level_colliders.insert(
                 id as LevelColliderID,
-                ActiveLevelColliderInfo::new(collider_handle, scene_id),
+                collider_info,
             );
 
             scene.rigid_bodies.insert(id as LevelColliderID, handle);
@@ -708,6 +712,24 @@ pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_rem
             scene.level_colliders.remove(&(id as LevelColliderID));
             scene.rigid_bodies.remove(&(id as LevelColliderID));
         }
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_setScale<
+    'local,
+>(
+    _env: JNIEnv<'local>,
+    _class: JClass<'local>,
+    scene_id: jint,
+    id: jint,
+    sx: jdouble,
+    sy: jdouble,
+    sz: jdouble,
+) {
+    let scene = get_scene_mut_ref(scene_id);
+    if let Some(info) = scene.level_colliders.get_mut(&(id as LevelColliderID)) {
+        info.scale = NaVector3::new(sx, sy, sz);
     }
 }
 
@@ -1130,6 +1152,9 @@ pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_tel
     j: jdouble,
     k: jdouble,
     r: jdouble,
+    sx: jdouble,
+    sy: jdouble,
+    sz: jdouble,
 ) {
     let scene = get_scene_mut_ref(scene_id);
     let rb = &mut scene.rigid_body_set[scene.rigid_bodies[&(id as LevelColliderID)]];
@@ -1138,6 +1163,11 @@ pub extern "system" fn Java_dev_ryanhcode_sable_physics_impl_rapier_Rapier3D_tel
     pose.translation = Vector::new(x as Real, y as Real, z as Real);
     pose.rotation = Quat::from_xyzw(i as Real, j as Real, k as Real, r as Real);
     rb.set_position(pose, true);
+
+    // Update stored scale
+    if let Some(info) = scene.level_colliders.get_mut(&(id as LevelColliderID)) {
+        info.scale = NaVector3::new(sx, sy, sz);
+    }
 }
 
 /// Wakes up an object.

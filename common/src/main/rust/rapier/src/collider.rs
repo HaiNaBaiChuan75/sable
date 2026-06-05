@@ -85,17 +85,18 @@ impl Shape for LevelCollider {
                 let center_of_mass = sable_body.center_of_mass.unwrap();
                 let local_min = sable_body.local_bounds_min.unwrap();
                 let local_max = sable_body.local_bounds_max.unwrap();
+                let scale = sable_body.scale;
 
                 let min = Vector::new(
-                    (local_min.x as f64 - center_of_mass.x) as Real,
-                    (local_min.y as f64 - center_of_mass.y) as Real,
-                    (local_min.z as f64 - center_of_mass.z) as Real,
+                    ((local_min.x as f64 - center_of_mass.x) * scale.x) as Real,
+                    ((local_min.y as f64 - center_of_mass.y) * scale.y) as Real,
+                    ((local_min.z as f64 - center_of_mass.z) * scale.z) as Real,
                 );
 
                 let max = Vector::new(
-                    ((local_max.x + 1) as f64 - center_of_mass.x) as Real,
-                    ((local_max.y + 1) as f64 - center_of_mass.y) as Real,
-                    ((local_max.z + 1) as f64 - center_of_mass.z) as Real,
+                    (((local_max.x + 1) as f64 - center_of_mass.x) * scale.x) as Real,
+                    (((local_max.y + 1) as f64 - center_of_mass.y) * scale.y) as Real,
+                    (((local_max.z + 1) as f64 - center_of_mass.z) * scale.z) as Real,
                 );
 
                 Aabb::new(min, max)

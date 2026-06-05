@@ -152,7 +152,7 @@ public class Rapier3D {
 
     /**
      * All poses are formatted in a double array as:
-     * [x, y, z, qx, qy, qz, qw]
+     * [x, y, z, qx, qy, qz, qw, sx, sy, sz]
      */
 
     @ApiStatus.Internal
@@ -182,7 +182,7 @@ public class Rapier3D {
      * Gets the pose of an object.
      *
      * @param id    the object ID
-     * @param store The array to store pose of the object in the format [x, y, z, qx, qy, qz, qw]
+     * @param store The array to store pose of the object in the format [x, y, z, qx, qy, qz, qw, sx, sy, sz]
      */
     @ApiStatus.Internal
     public static native void getPose(final int dimensionID, int id, double[] store);
@@ -303,9 +303,23 @@ public class Rapier3D {
      * @param x  the new x position
      * @param y  the new y position
      * @param z  the new z position
+     * @param sx the new scale x
+     * @param sy the new scale y
+     * @param sz the new scale z
      */
     @ApiStatus.Internal
-    public static native void teleportObject(final int dimensionID, int id, double x, double y, double z, double i, double j, double k, double r);
+    public static native void teleportObject(final int dimensionID, int id, double x, double y, double z, double i, double j, double k, double r, double sx, double sy, double sz);
+
+    /**
+     * Sets the scale of a sub-level.
+     *
+     * @param id the object ID
+     * @param sx the scale x factor
+     * @param sy the scale y factor
+     * @param sz the scale z factor
+     */
+    @ApiStatus.Internal
+    public static native void setScale(final int dimensionID, int id, double sx, double sy, double sz);
 
     /**
      * "Wakes up" an object, indicating environmental or other changes have occurred that should resume physics if idled or sleeping

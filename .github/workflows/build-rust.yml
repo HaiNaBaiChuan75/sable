@@ -3,6 +3,8 @@ on:
   push:
     paths:
       - 'common/src/main/rust/**'
+      - 'common/src/main/java/dev/ryanhcode/sable/physics/impl/rapier/Rapier3D.java'
+      - 'common/src/main/java/dev/ryanhcode/sable/physics/impl/rapier/RapierPhysicsPipeline.java'
       - '.github/workflows/build-rust.yml'
   workflow_dispatch:
 
