@@ -330,9 +330,9 @@ impl SableDispatcher {
 
                         // Apply scale to collision box half-extents
                         let half_extents = Vector::new(
-                            (((max_x - min_x) / 2.0) * scale_1.x) as Real,
-                            (((max_y - min_y) / 2.0) * scale_1.y) as Real,
-                            (((max_z - min_z) / 2.0) * scale_1.z) as Real,
+                            (((max_x - min_x) as f64 / 2.0 * scale_1.x) as Real,
+                            (((max_y - min_y) as f64 / 2.0 * scale_1.y) as Real,
+                            (((max_z - min_z) as f64 / 2.0 * scale_1.z) as Real,
                         );
 
                         // Translate to match the center of the current block
@@ -503,9 +503,9 @@ impl SableDispatcher {
                 );
 
                 let half_extents = Vector3::new(
-                    ((max_x - min_x) / 2.0 * scale_1.x) as Real,
-                    ((max_y - min_y) / 2.0 * scale_1.y) as Real,
-                    ((max_z - min_z) / 2.0 * scale_1.z) as Real,
+                    ((max_x - min_x) as f64 / 2.0 * scale_1.x) as Real,
+                    ((max_y - min_y) as f64 / 2.0 * scale_1.y) as Real,
+                    ((max_z - min_z) as f64 / 2.0 * scale_1.z) as Real,
                 );
 
                 // Translate to match the center of the current block
@@ -580,9 +580,9 @@ impl SableDispatcher {
                     );
 
                     let other_half_extents = Vector3::new(
-                        ((other_max_x - other_min_x) / 2.0 * scale_2.x) as Real,
-                        ((other_max_y - other_min_y) / 2.0 * scale_2.y) as Real,
-                        ((other_max_z - other_min_z) / 2.0 * scale_2.z) as Real,
+                        ((other_max_x - other_min_x) as f64 / 2.0 * scale_2.x) as Real,
+                        ((other_max_y - other_min_y) as f64 / 2.0 * scale_2.y) as Real,
+                        ((other_max_z - other_min_z) as f64 / 2.0 * scale_2.z) as Real,
                     );
 
                     // combine block isometries
